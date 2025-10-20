@@ -3,6 +3,8 @@ const session = require("express-session")
 const mongoose = require("mongoose")
 const MongoDBSession = require('connect-mongodb-session')(session)
 const bcrypt = require("bcryptjs")
+require('dotenv').config();
+
 const app = express();
 
 const UserModel = require('./models/User')
@@ -10,7 +12,10 @@ const UserModel = require('./models/User')
 app.set("view engine", "ejs")
 app.use(express.urlencoded({ extended: true }))
 
-const mongoURI = 'mongodb://localhost:27017/sessions'
+const PORT = process.env.PORT || 5000;
+
+const mongoURI = process.env.MONGO_URI;
+const sessionSecret = process.env.SESSION_SECRET;
 
 mongoose.connect( mongoURI, {
     useNewUrlParser: true,
@@ -25,7 +30,7 @@ const store = new MongoDBSession({
 })
 
 app.use(session({
-    secret : "secret key",
+    secret : sessionSecret,
     resave : false,         // for every request to the server whether we want to create a new session
     saveUninitialized : false,   // if we have to save the session or not
     store: store
@@ -102,4 +107,4 @@ app.post("/logout", (req,res) => {
     })
 })
 
-app.listen(5000, console.log("Server Running on http://localhost:5000"));
+app.listen(PORT, console.log("Server Running on http://localhost:5000"));
