@@ -56,40 +56,59 @@ It is designed as a learning/demo project to understand how session-based authen
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
-2. Install dependencies
-bash
-Copy code
+git clone https://github.com/Krishna-3228/nodejs-cookie-session-auth.git
+cd nodejs-cookie-session-auth
+```
+### 2. Install dependencies
+```bash
 npm install
-3. Create .env file
+```
+### 3. Create .env file
 Create a .env in the project root:
 
-ini
-Copy code
+```ini
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/sessions
 SESSION_SECRET=your_super_secret_key
-Make sure .env is in .gitignore.
+```
+#### OR
+Instead of creating .env directly, we provide a .env.example template.
 
-4. Start MongoDB
+Copy the example file to create your local .env:
+```bash
+cp .env.example .env
+```
+
+On Windows (PowerShell), use:
+```bash
+copy .env.example .env
+```
+
+Edit .env with your actual values:
+* PORT — port your server will run on (default 5000)
+* MONGO_URI — MongoDB connection string (local or Atlas)
+* SESSION_SECRET — long random string to secure session cookies
+
+#### Make sure .env is in .gitignore.
+
+### 4. Start MongoDB
 For local MongoDB:
 
-bash
-Copy code
+```bash
 # Linux/macOS
 sudo service mongod start
 
 # Or start manually
 mongod --dbpath /path/to/db --port 27017
-5. Start the app
-bash
-Copy code
+```
+### 5. Start the app
+```bash
 npm start
+```
 Visit http://localhost:5000 in your browser.
 
-Project Structure
-pgsql
+## Project Structure
+```pgsql
 Copy code
 .
 ├── package.json
@@ -104,47 +123,37 @@ Copy code
 │   └── dashboard.ejs
 ├── public/ (optional static files)
 └── README.md
-Available Routes
+```
+## Available Routes
 Route	Method	Description
-/	GET	Landing page
-/register	GET/POST	Register user
-/login	GET/POST	Login user
-/dashboard	GET	Protected dashboard
-/logout	POST	Logout user and destroy session
 
-How Sessions Work
-On successful login, req.session.isAuth and req.session.userName are set.
+- /	GET	Landing page
+- /register	GET/POST	Register user
+- /login	GET/POST	Login user
+- /dashboard	GET	Protected dashboard
+- /logout	POST	Logout user and destroy session
 
-express-session generates a session ID and stores the session in MongoDB.
+## How Sessions Work
+- On successful login, req.session.isAuth and req.session.userName are set.
+- express-session generates a session ID and stores the session in MongoDB.
+- Browser receives a cookie (connect.sid) with the session ID.
+- On future requests, the cookie is sent to the server, middleware loads session from MongoDB.
+- Protected routes check req.session.isAuth to allow or deny access.
+- Logout destroys the session in MongoDB and clears the cookie.
 
-Browser receives a cookie (connect.sid) with the session ID.
+## Troubleshooting
+- Cannot find module 'ejs' → npm install ejs
+- MongoDB connection errors → Ensure MongoDB is running and MONGO_URI is correct
+- Session not persisting → Verify connect-mongodb-session is saving sessions
+- Can't set headers after they are sent → Always return after res.render or res.redirect
 
-On future requests, the cookie is sent to the server, middleware loads session from MongoDB.
+## Security Notes
+- Use HTTPS in production
+- Use a strong SESSION_SECRET
+- Set cookie options: httpOnly: true, secure: true, sameSite: 'lax'
+- Validate and sanitize user inputs
+- Rate-limit login routes to prevent brute-force attacks
 
-Protected routes check req.session.isAuth to allow or deny access.
-
-Logout destroys the session in MongoDB and clears the cookie.
-
-Troubleshooting
-Cannot find module 'ejs' → npm install ejs
-
-MongoDB connection errors → Ensure MongoDB is running and MONGO_URI is correct
-
-Session not persisting → Verify connect-mongodb-session is saving sessions
-
-Can't set headers after they are sent → Always return after res.render or res.redirect
-
-Security Notes
-Use HTTPS in production
-
-Use a strong SESSION_SECRET
-
-Set cookie options: httpOnly: true, secure: true, sameSite: 'lax'
-
-Validate and sanitize user inputs
-
-Rate-limit login routes to prevent brute-force attacks
-
-License
+## License
 MIT License
 This project is free to use and modify for learning purposes.
